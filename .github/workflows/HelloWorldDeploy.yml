@@ -27,7 +27,7 @@ jobs:
 
       # 3. Set up Python and dependencies (with cache to speed up)
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: '3.x'
       - name: Log Python setup
@@ -35,7 +35,7 @@ jobs:
 
       # 4. Use pip cache to avoid reinstalling dependencies every time
       - name: Cache Python dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
