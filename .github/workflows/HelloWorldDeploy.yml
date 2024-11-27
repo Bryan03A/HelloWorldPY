@@ -3,31 +3,37 @@ name: Deploy to EC2
 on:
   push:
     branches:
-      - main  # Cambia 'main' si usas otra rama
+      - main  # Change 'main' if you're using another branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout del repositorio
+      # 1. Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v2
-        # El paso de "checkout" normalmente no toma mucho tiempo, así que lo mantenemos.
+        # The "checkout" step usually doesn't take much time, so we keep it.
+      - name: Log checkout step
+        run: echo "Checked out the code from the repository."
 
-      # 2. Configurar SSH para conectar a EC2
+      # 2. Set up SSH to connect to EC2
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.HelloWorldSecret }}
+      - name: Log SSH setup
+        run: echo "SSH keys have been configured to connect to EC2."
 
-      # 3. Configurar Python y dependencias (con cache para acelerar)
+      # 3. Set up Python and dependencies (with cache to speed up)
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'
+      - name: Log Python setup
+        run: echo "Python environment has been set up."
 
-      # 4. Usar caché de pip para evitar reinstalar dependencias siempre
+      # 4. Use pip cache to avoid reinstalling dependencies every time
       - name: Cache Python dependencies
         uses: actions/cache@v2
         with:
@@ -35,20 +41,26 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
+      - name: Log cache step
+        run: echo "Cached Python dependencies to speed up future runs."
 
-      # 5. Instalar dependencias solo si hay cambios en requirements.txt
+      # 5. Install dependencies only if there are changes in requirements.txt
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-        # Si los requisitos no cambian, el paso de instalación se saltará gracias al caché
+      - name: Log install step
+        run: echo "Python dependencies have been installed or updated."
 
-      # 6. Desplegar a EC2 y reiniciar servicio
+      # 6. Deploy to EC2 and restart the service
       - name: Deploy to EC2
         run: |
+          echo "Connecting to EC2..."
           ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.HelloWorldSecretIP }} << 'EOF'
             cd /home/ec2-user/HelloWorldPY
-            # Hacemos git pull solo si es necesario (si hay cambios en el código)
+            # Only perform git pull if necessary (if there are changes in the code)
             git pull origin main
-            sudo systemctl restart flaskapp  # Asumiendo que tu servicio se llama flaskapp
+            sudo systemctl restart flaskapp  # Assuming your service is called flaskapp
           EOF
+      - name: Log deployment step
+        run: echo "Deployed changes to EC2 and restarted the flaskapp service."
