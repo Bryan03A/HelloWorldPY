@@ -35,7 +35,7 @@ jobs:
       # 5. Desplegar a EC2
       - name: Deploy to EC2
         run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.HelloWorldSecretPub }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.HelloWorldSecretIP }} << 'EOF'
             cd /home/ec2-user/HelloWorldPY
             git pull origin main
             sudo systemctl restart flaskapp  # Asumiendo que tu servicio se llama flaskapp
