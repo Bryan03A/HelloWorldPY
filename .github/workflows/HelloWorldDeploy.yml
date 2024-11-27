@@ -38,5 +38,5 @@ jobs:
           ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.HelloWorldSecretIP }} << 'EOF'
             cd /home/ec2-user/HelloWorldPY
             git pull origin main
-            sudo systemctl restart flaskapp  # Asumiendo que tu servicio se llama flaskapp
+            sudo systemctl restart app  # Asumiendo que tu servicio se llama flaskapp
           EOF
