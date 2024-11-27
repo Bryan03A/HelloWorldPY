@@ -13,6 +13,7 @@ jobs:
       # 1. Checkout del repositorio
       - name: Checkout code
         uses: actions/checkout@v2
+        # El paso de "checkout" normalmente no toma mucho tiempo, así que lo mantenemos.
 
       # 2. Configurar SSH para conectar a EC2
       - name: Set up SSH
@@ -20,23 +21,34 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.HelloWorldSecret }}
 
-      # 3. Configurar Python y dependencias
+      # 3. Configurar Python y dependencias (con cache para acelerar)
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'
 
-      # 4. Instalar dependencias
+      # 4. Usar caché de pip para evitar reinstalar dependencias siempre
+      - name: Cache Python dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      # 5. Instalar dependencias solo si hay cambios en requirements.txt
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+        # Si los requisitos no cambian, el paso de instalación se saltará gracias al caché
 
-      # 5. Desplegar a EC2
+      # 6. Desplegar a EC2 y reiniciar servicio
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.HelloWorldSecretIP }} << 'EOF'
             cd /home/ec2-user/HelloWorldPY
+            # Hacemos git pull solo si es necesario (si hay cambios en el código)
             git pull origin main
             sudo systemctl restart flaskapp  # Asumiendo que tu servicio se llama flaskapp
           EOF
