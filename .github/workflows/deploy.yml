@@ -15,6 +15,9 @@ jobs:
 
     - name: Set up SSH
       run: |
+        # Crear la carpeta .ssh si no existe
+        mkdir -p ~/.ssh  
+        
         # Establecer permisos para la carpeta .ssh (solo el usuario actual puede escribir en ella)
         chmod 700 ~/.ssh
         
