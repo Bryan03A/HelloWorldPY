@@ -23,9 +23,8 @@ jobs:
     - name: Deploy to EC2
       run: |
         ssh -i ~/.ssh/id_rsa ec2-user@54.175.52.233 << 'EOF'
-          cd HelloWorldPY || git clone https://github.com/Bryan03A/HelloWorldPY.git
           cd HelloWorldPY
-          git pull
-          pip3 install -r requirements.txt
-          nohup python3 app.py > app.log 2>&1 &
+          git pull  # Esto descarga los últimos cambios
+          pkill -f python  # Detiene cualquier instancia previa de la aplicación
+          nohup python3 app.py > app.log 2>&1 &  # Vuelve a ejecutar la aplicación en segundo plano
         EOF
