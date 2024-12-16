@@ -13,11 +13,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Check if .ssh directory exists
+      run: |
+        if [ ! -d "/home/runner/.ssh" ]; then
+          echo ".ssh directory does not exist, creating it..."
+          mkdir -p /home/runner/.ssh
+        else
+          echo ".ssh directory already exists."
+        fi
+
     - name: Set up SSH
       run: |
-        # Crear la carpeta .ssh si no existe
-        mkdir -p /home/runner/.ssh  # Usar la ruta absoluta
-        
         # Establecer permisos para la carpeta .ssh (solo el usuario actual puede escribir en ella)
         chmod 700 /home/runner/.ssh
         
