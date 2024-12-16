@@ -21,7 +21,7 @@ jobs:
         # Establecer permisos para la carpeta .ssh (solo el usuario actual puede escribir en ella)
         chmod 700 $HOME/.ssh
         
-        # Guardar la clave privada SSH y darle permisos adecuados
+        # Guardar la clave privada SSH desde el secreto y darle permisos adecuados
         echo "${{ secrets.EC2_SSH_KEY }}" > $HOME/.ssh/id_rsa  # Guarda la clave privada SSH
         chmod 600 $HOME/.ssh/id_rsa  # Los permisos deben ser 600 (lectura y escritura solo para el propietario)
         
