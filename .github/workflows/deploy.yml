@@ -16,24 +16,24 @@ jobs:
     - name: Set up SSH
       run: |
         # Crear la carpeta .ssh si no existe
-        mkdir -p ~/.ssh  
+        mkdir -p /home/runner/.ssh  # Usar la ruta absoluta
         
         # Establecer permisos para la carpeta .ssh (solo el usuario actual puede escribir en ella)
-        chmod 700 ~/.ssh
+        chmod 700 /home/runner/.ssh
         
         # Guardar la clave privada SSH desde el secreto y darle permisos adecuados
-        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa  # Guarda la clave privada SSH
-        chmod 600 ~/.ssh/id_rsa  # Los permisos deben ser 600 (lectura y escritura solo para el propietario)
+        echo "${{ secrets.EC2_SSH_KEY }}" > /home/runner/.ssh/id_rsa  # Guarda la clave privada SSH
+        chmod 600 /home/runner/.ssh/id_rsa  # Los permisos deben ser 600 (lectura y escritura solo para el propietario)
         
         # Agregar la clave pública del ALB a known_hosts para evitar advertencias de seguridad
-        ssh-keyscan -H HelloWorldALB-755227875.us-east-1.elb.amazonaws.com >> ~/.ssh/known_hosts
+        ssh-keyscan -H HelloWorldALB-755227875.us-east-1.elb.amazonaws.com >> /home/runner/.ssh/known_hosts
         
         # Establecer permisos adecuados para known_hosts
-        chmod 644 ~/.ssh/known_hosts  # Los permisos deben ser 644 (lectura y escritura para el propietario, solo lectura para otros)
+        chmod 644 /home/runner/.ssh/known_hosts  # Los permisos deben ser 644 (lectura y escritura para el propietario, solo lectura para otros)
 
     - name: Deploy to EC2 instances behind ELB
       run: |
-        ssh -i ~/.ssh/id_rsa ec2-user@HelloWorldALB-755227875.us-east-1.elb.amazonaws.com << 'EOF'
+        ssh -i /home/runner/.ssh/id_rsa ec2-user@HelloWorldALB-755227875.us-east-1.elb.amazonaws.com << 'EOF'
           cd HelloWorldPY  # Cambia a la carpeta de tu aplicación en la EC2
           git pull  # Trae los últimos cambios
           pkill -f python  # Detiene cualquier instancia previa de la aplicación
