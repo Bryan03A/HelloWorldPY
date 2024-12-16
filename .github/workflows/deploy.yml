@@ -1,9 +1,9 @@
-name: Deploy to EC2 (via Load Balancer)
+name: Deploy to EC2 via Load Balancer
 
 on:
   push:
     branches:
-      - main  # Cambia si tu rama principal tiene otro nombre
+      - main  # Cambia por tu rama principal si es diferente
 
 jobs:
   deploy:
@@ -15,16 +15,16 @@ jobs:
 
     - name: Set up SSH
       run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H HelloWorldALB-755227875.us-east-1.elb.amazonaws.com >> ~/.ssh/known_hosts  # Usamos el DNS del ELB
+        mkdir -p $HOME/.ssh  # Crea el directorio .ssh
+        echo "${{ secrets.EC2_SSH_KEY }}" > $HOME/.ssh/id_rsa  # Guarda la clave privada SSH
+        chmod 600 $HOME/.ssh/id_rsa  # Cambia los permisos de la clave
+        ssh-keyscan -H HelloWorldALB-755227875.us-east-1.elb.amazonaws.com >> $HOME/.ssh/known_hosts  # Agrega el ELB a los hosts conocidos
 
     - name: Deploy to EC2 instances behind ELB
       run: |
-        ssh -i ~/.ssh/id_rsa ec2-user@HelloWorldALB-755227875.us-east-1.elb.amazonaws.com << 'EOF'
-          cd HelloWorldPY
-          git pull  # Esto descarga los últimos cambios
+        ssh -i $HOME/.ssh/id_rsa ec2-user@HelloWorldALB-755227875.us-east-1.elb.amazonaws.com << 'EOF'
+          cd HelloWorldPY  # Cambia a la carpeta de tu aplicación en la EC2
+          git pull  # Trae los últimos cambios
           pkill -f python  # Detiene cualquier instancia previa de la aplicación
-          nohup python3 app.py > app.log 2>&1 &  # Vuelve a ejecutar la aplicación en segundo plano
+          nohup python3 app.py > app.log 2>&1 &  # Ejecuta la aplicación en segundo plano
         EOF
