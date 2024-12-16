@@ -18,7 +18,7 @@ jobs:
         # Crear la carpeta .ssh si no existe
         mkdir -p ~/.ssh  
         
-        # Establecer permisos aaaapara la carpeta .ssh (solo el usuario actual puede escribir en ella)
+        # Establecer permisos para la carpeta .ssh (solo el usuario actual puede escribir en ella)
         chmod 700 ~/.ssh
         
         # Guardar la clave privada SSH desde el secreto y darle permisos adecuados
