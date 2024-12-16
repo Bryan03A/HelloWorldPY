@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: Deploy to EC2 (via Load Balancer)
 
 on:
   push:
@@ -18,11 +18,11 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H 50.16.201.101 >> ~/.ssh/known_hosts
+        ssh-keyscan -H HelloWorldALB-755227875.us-east-1.elb.amazonaws.com >> ~/.ssh/known_hosts  # Usamos el DNS del ELB
 
-    - name: Deploy to EC2
+    - name: Deploy to EC2 instances behind ELB
       run: |
-        ssh -i ~/.ssh/id_rsa ec2-user@50.16.201.101 << 'EOF'
+        ssh -i ~/.ssh/id_rsa ec2-user@HelloWorldALB-755227875.us-east-1.elb.amazonaws.com << 'EOF'
           cd HelloWorldPY
           git pull  # Esto descarga los últimos cambios
           pkill -f python  # Detiene cualquier instancia previa de la aplicación
