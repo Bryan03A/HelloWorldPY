@@ -15,10 +15,21 @@ jobs:
 
     - name: Set up SSH
       run: |
-        mkdir -p $HOME/.ssh  # Crea el directorio .ssh
+        # Crear la carpeta .ssh si no existe
+        mkdir -p $HOME/.ssh  
+        
+        # Establecer permisos para la carpeta .ssh (solo el usuario actual puede escribir en ella)
+        chmod 700 $HOME/.ssh
+        
+        # Guardar la clave privada SSH y darle permisos adecuados
         echo "${{ secrets.EC2_SSH_KEY }}" > $HOME/.ssh/id_rsa  # Guarda la clave privada SSH
-        chmod 600 $HOME/.ssh/id_rsa  # Cambia los permisos de la clave
-        ssh-keyscan -H HelloWorldALB-755227875.us-east-1.elb.amazonaws.com >> $HOME/.ssh/known_hosts  # Agrega el ELB a los hosts conocidos
+        chmod 600 $HOME/.ssh/id_rsa  # Los permisos deben ser 600 (lectura y escritura solo para el propietario)
+        
+        # Agregar la clave pública del ALB a known_hosts para evitar advertencias de seguridad
+        ssh-keyscan -H HelloWorldALB-755227875.us-east-1.elb.amazonaws.com >> $HOME/.ssh/known_hosts
+        
+        # Establecer permisos adecuados para known_hosts
+        chmod 644 $HOME/.ssh/known_hosts  # Los permisos deben ser 644 (lectura y escritura para el propietario, solo lectura para otros)
 
     - name: Deploy to EC2 instances behind ELB
       run: |
