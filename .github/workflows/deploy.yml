@@ -18,11 +18,12 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H <Elastic_Load_Balancer_DNS> >> ~/.ssh/known_hosts  # Usamos el DNS del ELB
+        # Asegurarse de que el DNS del ELB esté correctamente añadido al archivo known_hosts
+        ssh-keyscan -H ${{ secrets.ELB_DNS }} >> ~/.ssh/known_hosts  # Usamos el DNS del ELB
 
     - name: Deploy to EC2 instances behind ELB
       run: |
-        ssh -i ~/.ssh/id_rsa ec2-user@<Elastic_Load_Balancer_DNS> << 'EOF'
+        ssh -i ~/.ssh/id_rsa ec2-user@${{ secrets.ELB_DNS }} << 'EOF'
           cd HelloWorldPY  # Cambia a la carpeta de tu aplicación en la EC2
           git pull  # Trae los últimos cambios
           pkill -f python  # Detiene cualquier instancia previa de la aplicación
