@@ -1,9 +1,9 @@
-name: Deploy to EC2 via Load Balancer
+name: Deploy to EC2
 
 on:
   push:
     branches:
-      - main  # Cambia por tu rama principal si es diferente
+      - main  # Cambia si tu rama principal tiene otro nombre
 
 jobs:
   deploy:
@@ -18,14 +18,13 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        # Asegurarse de que el DNS del ELB esté correctamente añadido al archivo known_hosts
-        ssh-keyscan -H ${{ secrets.ELB_DNS }} >> ~/.ssh/known_hosts  # Usamos el DNS del ELB
+        ssh-keyscan -H 50.16.201.101 >> ~/.ssh/known_hosts  # Usa la Elastic IP aquí
 
-    - name: Deploy to EC2 instances behind ELB
+    - name: Deploy to EC2
       run: |
-        ssh -i ~/.ssh/id_rsa ec2-user@${{ secrets.ELB_DNS }} << 'EOF'
-          cd HelloWorldPY  # Cambia a la carpeta de tu aplicación en la EC2
-          git pull  # Trae los últimos cambios
+        ssh -i ~/.ssh/id_rsa ec2-user@50.16.201.101 << 'EOF'
+          cd HelloWorldPY
+          git pull  # Esto descarga los últimos cambios
           pkill -f python  # Detiene cualquier instancia previa de la aplicación
-          nohup python3 app.py > app.log 2>&1 &  # Ejecuta la aplicación en segundo plano
+          nohup python3 app.py > app.log 2>&1 &  # Vuelve a ejecutar la aplicación en segundo plano
         EOF
