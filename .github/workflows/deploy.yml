@@ -18,11 +18,11 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H 50.16.201.101 >> ~/.ssh/known_hosts  # Usa la Elastic IP aquí
+        ssh-keyscan -H 34.198.77.142 >> ~/.ssh/known_hosts  # Usa la Elastic IP aquí
 
     - name: Deploy to EC2
       run: |
-        ssh -i ~/.ssh/id_rsa ec2-user@50.16.201.101 << 'EOF'
+        ssh -i ~/.ssh/id_rsa ec2-user@34.198.77.142 << 'EOF'
           cd HelloWorldPY
           git pull  # Esto descarga los últimos cambios
           pkill -f python  # Detiene cualquier instancia previa de la aplicación
